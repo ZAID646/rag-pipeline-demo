@@ -1,8 +1,13 @@
+---
+sdk: gradio
+sdk_version: 5.36.2
+python_version: "3.10"
+app_file: app.py
+---
+
 # RAG Pipeline Demo
 
-End-to-end Retrieval-Augmented Generation pipeline — ingest documents, chunk and embed them, then retrieve relevant context for LLM-powered question answering.
-
-**[→ Live Demo](https://zaid646-rag-pipeline-demo.hf.space)**
+End-to-end Retrieval-Augmented Generation pipeline — ingest documents, chunk and embed them, then retrieve relevant context for LLM-powered question answering. Try it live: [zaid646/rag-pipeline-demo](https://huggingface.co/spaces/zaid646/rag-pipeline-demo)
 
 ---
 
@@ -53,20 +58,3 @@ python app.py
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
----
-
-## YAML for HuggingFace
-
-```yaml
-title: RAG Pipeline Demo
-emoji: 🔍
-colorFrom: blue
-colorTo: indigo
-sdk: gradio
-sdk_version: 5.36.2
-python_version: "3.10"
-app_file: app.py
-pinned: false
-license: mit
-```
