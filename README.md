@@ -13,18 +13,56 @@ license: mit
 
 # RAG Pipeline Demo
 
-End-to-end RAG pipeline with hybrid search (dense + BM25), cross-encoder reranking, and multi-provider answer generation.
+End-to-end Retrieval-Augmented Generation pipeline — ingest documents, chunk and embed them, then retrieve relevant context for LLM-powered question answering.
 
-## How it works
+**[→ Live Demo](https://zaid646-rag-pipeline-demo.hf.space)**
 
-1. **Ingest** — Paste text, it gets chunked, embedded (all-MiniLM-L6-v2), and stored in ChromaDB
-2. **Retrieve** — Hybrid search: dense (vector) + sparse (BM25) with fusion
-3. **Rerank** — Cross-encoder (ms-marco-MiniLM-L-6-v2) re-scores top results
-4. **Generate** — Selected provider (Cerebras/NVIDIA) answers using retrieved context
+---
 
-## API Keys
+## Overview
 
-| Secret | Value |
+Built with FAISS for vector search and NVIDIA embeddings, this RAG system processes unstructured text into searchable chunks and answers questions using retrieved context.
+
+### Pipeline
+
+```
+1. Ingest → 2. Chunk → 3. Embed → 4. Index → 5. Retrieve → 6. Generate
+```
+
+| Stage | Detail |
 |---|---|
-| `CEREBRAS_API_KEY` | Your Cerebras API key |
-| `NVIDIA_API_KEY` | Your NVIDIA API key |
+| **Chunking** | Recursive split (paragraphs → sentences → words), merge to ~500 chars |
+| **Embeddings** | NVIDIA `minimaxai/minimax-m3` via OpenAI-compatible API |
+| **Vector Index** | FAISS in-memory, dot-product similarity |
+| **Generation** | NVIDIA `minimaxai/minimax-m3` with context injection |
+
+---
+
+## Running Locally
+
+```bash
+git clone https://github.com/zaid646/rag-pipeline-demo.git
+cd rag-pipeline-demo
+pip install -r requirements.txt
+python app.py
+```
+
+### Required Environment Variables
+
+| Variable | Description |
+|---|---|
+| `NVIDIA_API_KEY` | NVIDIA API key (embeddings + generation) |
+
+---
+
+## Usage
+
+1. **Paste or upload** a document in the text area
+2. Click **Ingest** — the system chunks, embeds, and indexes the document
+3. **Ask questions** in the chat interface — replies draw from the ingested content
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
