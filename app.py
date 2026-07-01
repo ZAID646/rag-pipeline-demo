@@ -65,27 +65,63 @@ def get_collection():
 
 
 def chunk_text(text, chunk_size=512, chunk_overlap=64):
-    separators = ["\n\n", "\n", ". ", " ", ""]
     text = text.strip()
     if not text:
         return []
+    separators = ["\n\n", "\n", " ", ""]
+
+    def _split(text, depth=0):
+        if not text or len(text) <= chunk_size:
+            return [text] if text else []
+        if depth >= len(separators):
+            return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+        sep = separators[depth]
+        if not sep:
+            return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+        parts = text.split(sep)
+        result = []
+        for part in parts:
+            if not part:
+                continue
+            if len(part) <= chunk_size:
+                if part.strip():
+                    result.append(part.strip())
+            else:
+                result.extend(_split(part, depth + 1))
+        return result
+
+    splits = _split(text)
+    if not splits:
+        return []
+
     chunks = []
-    start = 0
-    while start < len(text):
-        end = min(start + chunk_size, len(text))
-        if end < len(text):
-            for sep in separators:
-                pos = text.rfind(sep, start, end)
-                if pos > start:
-                    end = pos + len(sep)
-                    break
-        chunk = text[start:end].strip()
-        if chunk:
-            chunks.append(chunk)
-        if end >= len(text):
-            break
-        start = max(end - chunk_overlap, start + 1)
-    return chunks
+    buffer = ""
+    for split in splits:
+        if not buffer:
+            buffer = split
+        elif len(buffer) + len(split) + 1 <= chunk_size:
+            buffer += " " + split
+        else:
+            if not chunks or buffer != chunks[-1]:
+                chunks.append(buffer)
+            if chunk_overlap > 0 and len(buffer) > chunk_overlap:
+                overlap_text = buffer[-chunk_overlap:]
+                space_pos = overlap_text.find(" ")
+                if space_pos > 0:
+                    overlap_text = overlap_text[space_pos + 1:]
+                buffer = overlap_text
+            else:
+                buffer = ""
+            if buffer and len(buffer) + len(split) + 1 <= chunk_size:
+                buffer += " " + split
+            else:
+                if buffer and (not chunks or buffer != chunks[-1]):
+                    chunks.append(buffer)
+                buffer = split
+    if buffer and (not chunks or buffer != chunks[-1]):
+        chunks.append(buffer)
+
+    return [c.strip() for c in chunks if c.strip()]
 
 
 def ingest_documents(text, progress=gr.Progress()):
